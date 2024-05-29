@@ -1,0 +1,36 @@
+.rating-title {
+    cursor: pointer;
+    font-weight: bold;
+    position: relative;
+    padding-left: 20px; /* Space for the arrow icon */
+}
+
+.rating-title::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) rotate(0deg);
+    background: no-repeat center center; /* Removed the URL here */
+    transition: transform 0.3s ease;
+}
+
+.rating-title.open::before {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.problem-list {
+    display: none;
+    margin-top: 5px;
+    padding:0.5em;
+    border-radius:6px;
+    background-color: #def;
+    border: 1px solid #b9b9b9
+}
+
+.problem-list a {
+    padding:1em 1em 1em 1em;
+}
