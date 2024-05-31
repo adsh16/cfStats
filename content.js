@@ -1,6 +1,6 @@
-// const fetchedSolvedProblemsData;
-// const fetchedSolvedProblemResponse;
-// fetchSolvedProblemsBOOL = false;
+let fetchedSolvedProblemsData = null;
+let fetchedSolvedProblemResponse = null;
+let fetchSolvedProblemsBOOL = false;
 
 async function loadTemplate() {
   const response = await fetch(chrome.runtime.getURL('template.html'));
@@ -16,8 +16,8 @@ function getUsernameFromTitle() {
 
 async function fetchSolvedProblems(handle) {
   fetchedSolvedProblemResponse = await fetch(`https://codeforces.com/api/user.status?handle=${handle}`);
-  fetchSolvedProblems = await fetchedSolvedProblemResponse.json();
-  return fetchSolvedProblems;
+  fetchedSolvedProblemsData = await fetchedSolvedProblemResponse.json();
+  return fetchedSolvedProblemsData;
 }
 
 function toggleProblemList(event) {
@@ -71,40 +71,13 @@ window.addEventListener('load', async () => {
               if (response.status === "OK") {
                 fetchSolvedProblemsBOOL = true;
                   const solvedProblems = response.result.filter(submission => submission.verdict === "OK").map(submission => submission.problem);
-                  const resultDiv = document.getElementById('result');
-                  resultDiv.innerHTML = '';
+                  const problemsByRating = displaySolvedProblems(solvedProblems);
 
-                  const problemsByRating = {};
-                  solvedProblems.forEach(problem => {
-                      const rating = problem.rating || 'Unrated';
-                      if (!problemsByRating[rating]) {
-                          problemsByRating[rating] = [];
-                      }
-                      problemsByRating[rating].push(problem);
-                  });
+                  // Call the function for unsolved problems
+                  unsolvedProblems(response.result);
 
-                  for (const rating in problemsByRating) {
-                      const problems = problemsByRating[rating];
-                      const ratingSection = document.createElement('div');
-                      ratingSection.className = 'rating-section';
-
-                      const ratingTitle = document.createElement('div');
-                      ratingTitle.className = 'rating-title';
-                      ratingTitle.innerText = `Rating: ${rating}`;
-                      ratingTitle.addEventListener('click', toggleProblemList);
-
-                      const problemList = document.createElement('div');
-                      problemList.className = 'problem-list';
-                      problems.forEach(problem => {
-                          const problemDiv = document.createElement('div');
-                          problemDiv.innerHTML = `<a href="https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}" target="_blank">${problem.name}</a>`;
-                          problemList.appendChild(problemDiv);
-                      });
-
-                      ratingSection.appendChild(ratingTitle);
-                      ratingSection.appendChild(problemList);
-                      resultDiv.appendChild(ratingSection);
-                  }
+                  // Call the function for probelemHistogram
+                  problemHistogram(problemsByRating);
               } else {
                   document.getElementById('result').innerText = 'Error fetching problems. Please try again.';
               }
@@ -115,27 +88,79 @@ window.addEventListener('load', async () => {
   }
 });
 
-function graph(){
-    const ctx = document.getElementById('problemGraph');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['800', '900', '1000', '1100', '1200', '1300','1400'],
-        datasets: [{
-          label: '# of problems',
-          data: [12, 19, 3, 5, 2, 3,5],
-          borderWidth: 1
-        }]
-      },
-    });
+function displaySolvedProblems(solvedProblems) {
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = '';
+
+  const problemsByRating = {};
+  solvedProblems.forEach(problem => {
+      const rating = problem.rating || 'Unrated';
+      if (!problemsByRating[rating]) {
+          problemsByRating[rating] = [];
+      }
+      problemsByRating[rating].push(problem);
+  });
+
+  for (const rating in problemsByRating) {
+      const problems = problemsByRating[rating];
+      const ratingSection = document.createElement('div');
+      ratingSection.className = 'rating-section';
+
+      const ratingTitle = document.createElement('div');
+      ratingTitle.className = 'rating-title';
+      ratingTitle.innerText = `Rating: ${rating}`;
+      ratingTitle.addEventListener('click', toggleProblemList);
+
+      const problemList = document.createElement('div');
+      problemList.className = 'problem-list';
+      problems.forEach(problem => {
+          const problemDiv = document.createElement('div');
+          problemDiv.innerHTML = `<a href="https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}" target="_blank">${problem.name}</a>`;
+          problemList.appendChild(problemDiv);
+      });
+
+      ratingSection.appendChild(ratingTitle);
+      ratingSection.appendChild(problemList);
+      resultDiv.appendChild(ratingSection);
+  }
+  return problemsByRating;
+}
+function unsolvedProblems(submissions) {
+  const solvedProblems = submissions.filter(submission => submission.verdict === "OK").map(submission => submission.problem);
+  const solvedProblemIds = new Set(solvedProblems.map(problem => `${problem.contestId}-${problem.index}`));
+
+  const notAcceptedSubmissions = submissions.filter(submission => submission.verdict !== "OK");
+  const unsolvedProblemIds = new Set();
+  const unsolvedProblems = [];
+
+  notAcceptedSubmissions.forEach(submission => {
+    const problemId = `${submission.problem.contestId}-${submission.problem.index}`;
+    if (!solvedProblemIds.has(problemId) && !unsolvedProblemIds.has(problemId)) {
+      unsolvedProblemIds.add(problemId);
+      unsolvedProblems.push(submission.problem);
+    }
+  });
+
+  const unsolvedDiv = document.getElementById('unsolvedProblems');
+  unsolvedDiv.innerHTML = '';
+
+  const unsolvedProblemCount = unsolvedProblems.length;
+  const unsolvedProblemCountHeading = document.getElementById('unsolvedProblemCount');
+  unsolvedProblemCountHeading.innerHTML = `<h5>Count: ${unsolvedProblemCount}</h5>`;
+
+  if (unsolvedProblems.length === 0) {
+    unsolvedDiv.innerText = 'No unsolved problems found.';
+    return;
+  }
+
+  unsolvedProblems.forEach(problem => {
+    const problemDiv = document.createElement('div');
+    problemDiv.innerHTML = `<a href="https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}" target="_blank">${problem.name}</a>`;
+    unsolvedDiv.appendChild(problemDiv);
+  });
 }
 
-function unsolvedProblems(){
-    // problem that have been submitted once or more. But have not been accepted
-    // if(fetchedSolvedProblems){
-    //     const unsolvedProblems = fetchedSolvedProblemResponse.filter
-    // }
-    // else{
-    //     console.error("Error getting problems");
-    // }
+
+function problemHistogram(){
+
 }
