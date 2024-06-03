@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Codeforces Tracker",
+  "version": "1.0",
+  "description": "Track solved Codeforces problems by rating",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://codeforces.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://codeforces.com/profile/*"],
+      "js": ["content.js","libs/chart.min.js","background.js"],
+      "css": ["styles.css","popup_style.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "popup.html",
+        "popup_style.css",
+        "template.html",
+        "style.css",
+        "content.js",
+        "libs/chart.min.js",
+        "images/arrow.png"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
