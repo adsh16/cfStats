@@ -10,9 +10,6 @@
   "host_permissions": [
     "https://codeforces.com/*"
   ],
-  "background": {
-    "service_worker": "background.js"
-  },
   "action": {
     "default_icon": {
       "16": "icons/icon16.png",
@@ -29,7 +26,7 @@
   "content_scripts": [
     {
       "matches": ["https://codeforces.com/profile/*"],
-      "js": ["content.js","libs/chart.min.js","background.js"],
+      "js": ["content.js","libs/chart.min.js"],
       "css": ["styles.css","popup_style.css"]
     }
   ],

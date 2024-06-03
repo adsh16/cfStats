@@ -168,8 +168,6 @@ function problemHistogram(problemsByRating) {
   // Get the canvas element
   const ctx = document.getElementById('problemGraph').getContext('2d');
   
-  ctx.innerHTML = `<h1>testing</h1>`;
-  
   // Create the histogram using Chart.js
   new Chart(ctx, {
     type: 'bar',
@@ -178,9 +176,9 @@ function problemHistogram(problemsByRating) {
       datasets: [{
         label: 'Number of Problems Solved',
         data: problemCounts,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
+        backgroundColor: ratings.map(rating => problemRatingBackgroundColor(rating, 1.0)), // Set opacity to 1.0
+        borderColor: 'black', // Black border color
+        borderWidth: 1,
       }]
     },
     options: {
@@ -208,5 +206,37 @@ function problemHistogram(problemsByRating) {
   });
 }
 
-
 // --------------------------------------------------------------------------
+function problemRatingBackgroundColor(rating){
+  const legendaryGrandmaster      = 'rgba(170,  0,  0,0.9)';
+  const internationalGrandmaster  = 'rgba(255,51 ,51 ,0.9)';
+  const grandmaster               = 'rgba(255,119,119,0.9)';
+  const internationalMaster       = 'rgba(255,187,85 ,0.9)';
+  const master                    = 'rgba(255,204,136,0.9)';
+  const candidateMaster           = 'rgba(255,136,255,0.9)';
+  const expert                    = 'rgba(170,170,255,0.9)';
+  const specialist                = 'rgba(119,221,187,0.9)';
+  const pupil                     = 'rgba(119,255,119,0.9)';
+  const newbie                    = 'rgba(204,204,204,0.9)';
+  if(rating>=3000){
+    return legendaryGrandmaster;
+  }else if(rating>=2600 && rating<=2999){
+    return internationalGrandmaster;
+  }else if(rating>=2400 && rating<=2599){
+    return grandmaster;
+  }else if(rating>=2300 && rating<=2399){
+    return internationalMaster;
+  }else if(rating>=2100 && rating<=2299){
+    return master;
+  }else if(rating>=1900 && rating<=2099){
+    return candidateMaster;
+  }else if(rating>=1600 && rating<=1899){
+    return expert;
+  }else if(rating>=1400 && rating<=1599){
+    return specialist;
+  }else if(rating>=1200 && rating<=1399){
+    return pupil;
+  }else{
+    return newbie;
+  }
+}
