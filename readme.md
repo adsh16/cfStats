@@ -8,4 +8,4 @@
 
 ---
 
-![Solved Problem by rating](githubImages\image-1.png)
+![Solved Problems Grouped By Rating](githubImages/image-1.png)
