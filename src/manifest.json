@@ -34,9 +34,9 @@
     {
       "resources": [
         "popup.html",
-        "popup_style.css",
         "template.html",
-        "style.css",
+        "popup_style.css",
+        "styles.css",
         "content.js",
         "libs/chart.min.js",
         "images/arrow.png"

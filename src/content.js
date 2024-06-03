@@ -11,66 +11,67 @@ function getUsernameFromTitle() {
 }
 
 async function fetchSolvedProblems(handle) {
-  fetchedSolvedProblemResponse = await fetch(`https://codeforces.com/api/user.status?handle=${handle}`);
-  fetchedSolvedProblemsData = await fetchedSolvedProblemResponse.json();
-  return fetchedSolvedProblemsData;
+  const response = await fetch(`https://codeforces.com/api/user.status?handle=${handle}`);
+  const data = await response.json();
+  return data;
 }
 
 function toggleProblemList(event) {
   const ratingTitle = event.target;
   const problemList = ratingTitle.nextElementSibling;
   if (problemList.style.display === 'none') {
-      problemList.style.display = 'block';
-      ratingTitle.classList.add('open');
+    problemList.style.display = 'block';
+    ratingTitle.classList.add('open');
   } else {
-      problemList.style.display = 'none';
-      ratingTitle.classList.remove('open');
+    problemList.style.display = 'none';
+    ratingTitle.classList.remove('open');
   }
 }
 
+let currentChart;
+
 window.addEventListener('load', async () => {
-  // No need to load Chart.js dynamically anymore
   const handle = getUsernameFromTitle();
 
   if (handle) {
-      const targetElement = document.querySelector('._UserActivityFrame_frame');
+    const targetElement = document.querySelector('._UserActivityFrame_frame');
 
-      if (targetElement) {
-          const template = await loadTemplate();
-          const container = document.createElement('div');
-          container.id = 'solved-problems-container';
-          container.innerHTML = template;
+    if (targetElement) {
+      const template = await loadTemplate();
+      const container = document.createElement('div');
+      container.id = 'solved-problems-container';
+      container.innerHTML = template;
 
-          targetElement.insertAdjacentElement('afterend', container);
+      targetElement.insertAdjacentElement('afterend', container);
 
-          // Dynamically set the background image URL
-          const arrowImageUrl = chrome.runtime.getURL('images/arrow.png');
-          const style = document.createElement('style');
-          style.innerHTML = `
-              .rating-title::before {
-                  background-image: url(${arrowImageUrl});
-              }
-          `;
-          document.head.appendChild(style);
+      const arrowImageUrl = chrome.runtime.getURL('images/arrow.png');
+      const style = document.createElement('style');
+      style.innerHTML = `
+        .rating-title::before {
+          background-image: url(${arrowImageUrl});
+        }
+      `;
+      document.head.appendChild(style);
 
-          try {
-              const response = await fetchSolvedProblems(handle);
-              if (response.status === "OK") {
-                  const solvedProblems = response.result.filter(submission => submission.verdict === "OK").map(submission => submission.problem);
-                  const problemsByRating = displaySolvedProblems(solvedProblems);
+      try {
+        const response = await fetchSolvedProblems(handle);
+        if (response.status === "OK") {
+          const solvedProblems = response.result.filter(submission => submission.verdict === "OK").map(submission => submission.problem);
+          const problemsByRating = displaySolvedProblems(solvedProblems);
 
-                  // Call the function for unsolved problems
-                  unsolvedProblems(response.result);
+          unsolvedProblems(response.result);
+          problemHistogram(problemsByRating);
 
-                  // Call the function for problemHistogram
-                  problemHistogram(problemsByRating);
-              } else {
-                  document.getElementById('result').innerText = 'Error fetching problems. Please try again.';
-              }
-          } catch (error) {
-              document.getElementById('result').innerText = `Error : ${error.message}`;
-          }
+          document.getElementById('graph-type').addEventListener('change', (event) => {
+            problemHistogram(problemsByRating, event.target.value);
+          });
+        } else {
+          document.getElementById('result').innerText = 'Error fetching problems. Please try again.';
+        }
+      } catch (error) {
+        document.getElementById('result').innerText = `Error : ${error.message}`;
       }
+    }
   }
 });
 
@@ -80,34 +81,34 @@ function displaySolvedProblems(solvedProblems) {
 
   const problemsByRating = {};
   solvedProblems.forEach(problem => {
-      const rating = problem.rating || 'Unrated';
-      if (!problemsByRating[rating]) {
-          problemsByRating[rating] = [];
-      }
-      problemsByRating[rating].push(problem);
+    const rating = problem.rating || 'Unrated';
+    if (!problemsByRating[rating]) {
+      problemsByRating[rating] = [];
+    }
+    problemsByRating[rating].push(problem);
   });
 
   for (const rating in problemsByRating) {
-      const problems = problemsByRating[rating];
-      const ratingSection = document.createElement('div');
-      ratingSection.className = 'rating-section';
+    const problems = problemsByRating[rating];
+    const ratingSection = document.createElement('div');
+    ratingSection.className = 'rating-section';
 
-      const ratingTitle = document.createElement('div');
-      ratingTitle.className = 'rating-title';
-      ratingTitle.innerText = `Rating: ${rating}`;
-      ratingTitle.addEventListener('click', toggleProblemList);
+    const ratingTitle = document.createElement('div');
+    ratingTitle.className = 'rating-title';
+    ratingTitle.innerText = `Rating: ${rating}`;
+    ratingTitle.addEventListener('click', toggleProblemList);
 
-      const problemList = document.createElement('div');
-      problemList.className = 'problem-list';
-      problems.forEach(problem => {
-          const problemDiv = document.createElement('div');
-          problemDiv.innerHTML = `<a href="https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}" target="_blank">${problem.name}</a>`;
-          problemList.appendChild(problemDiv);
-      });
+    const problemList = document.createElement('div');
+    problemList.className = 'problem-list';
+    problems.forEach(problem => {
+      const problemDiv = document.createElement('div');
+      problemDiv.innerHTML = `<a href="https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}" target="_blank">${problem.name}</a>`;
+      problemList.appendChild(problemDiv);
+    });
 
-      ratingSection.appendChild(ratingTitle);
-      ratingSection.appendChild(problemList);
-      resultDiv.appendChild(ratingSection);
+    ratingSection.appendChild(ratingTitle);
+    ratingSection.appendChild(problemList);
+    resultDiv.appendChild(ratingSection);
   }
   return problemsByRating;
 }
@@ -147,38 +148,90 @@ function unsolvedProblems(submissions) {
   });
 }
 
-function problemHistogram(problemsByRating) {
+function problemRatingBackgroundColor(rating) {
+  const legendaryGrandmaster = 'rgba(170,  0,  0, 1)';
+  const internationalGrandmaster = 'rgba(255, 51, 51, 1)';
+  const grandmaster = 'rgba(255, 119, 119, 1)';
+  const internationalMaster = 'rgba(255, 187, 85, 1)';
+  const master = 'rgba(255, 204, 136, 1)';
+  const candidateMaster = 'rgba(255, 136, 255, 1)';
+  const expert = 'rgba(170, 170, 255, 1)';
+  const specialist = 'rgba(119, 221, 187, 1)';
+  const pupil = 'rgba(119, 255, 119, 1)';
+  const newbie = 'rgba(204, 204, 204, 1)';
+  const borderColor = 'rgba(0, 0, 0, 1)';
+  
+  if (rating >= 3000) {
+    return { backgroundColor: legendaryGrandmaster, borderColor };
+  } else if (rating >= 2600 && rating <= 2999) {
+    return { backgroundColor: internationalGrandmaster, borderColor };
+  } else if (rating >= 2400 && rating <= 2599) {
+    return { backgroundColor: grandmaster, borderColor };
+  } else if (rating >= 2300 && rating <= 2399) {
+    return { backgroundColor: internationalMaster, borderColor };
+  } else if (rating >= 2100 && rating <= 2299) {
+    return { backgroundColor: master, borderColor };
+  } else if (rating >= 1900 && rating <= 2099) {
+    return { backgroundColor: candidateMaster, borderColor };
+  } else if (rating >= 1600 && rating <= 1899) {
+    return { backgroundColor: expert, borderColor };
+  } else if (rating >= 1400 && rating <= 1599) {
+    return { backgroundColor: specialist, borderColor };
+  } else if (rating >= 1200 && rating <= 1399) {
+    return { backgroundColor: pupil, borderColor };
+  } else {
+    return { backgroundColor: newbie, borderColor };
+  }
+}
+
+function problemHistogram(problemsByRating, chartType = 'line') {
   if (!problemsByRating) {
     console.error("problemsByRating is undefined");
     return;
   }
-  // console.log("problemsByRating:", problemsByRating);
+  console.log("problemsByRating:", problemsByRating);
 
   const ratings = Object.keys(problemsByRating)
     .map(rating => parseInt(rating))
     .filter(rating => !isNaN(rating))
     .sort((a, b) => a - b);
 
-  // console.log("ratings:", ratings);
+  console.log("ratings:", ratings);
 
   const problemCounts = ratings.map(rating => problemsByRating[rating].length);
 
-  // // console.log("problemCounts:", problemCounts);
+  console.log("problemCounts:", problemCounts);
 
-  // Get the canvas element
   const ctx = document.getElementById('problemGraph').getContext('2d');
-  
-  // Create the histogram using Chart.js
-  new Chart(ctx, {
-    type: 'bar',
+
+  if (currentChart) {
+    currentChart.destroy();
+  }
+
+  // // Adjust canvas size based on chart type
+  // if (chartType === 'pie') {
+  //   canvas.width = 300;
+  //   canvas.height = 300;
+  // } else {
+  //   canvas.width = 800;
+  //   canvas.height = 400;
+  // }
+
+  const backgroundColors = ratings.map(rating => problemRatingBackgroundColor(rating).backgroundColor);
+  const borderColors = ratings.map(rating => problemRatingBackgroundColor(rating).borderColor);
+
+  currentChart = new Chart(ctx, {
+    type: chartType,
     data: {
       labels: ratings,
       datasets: [{
         label: 'Number of Problems Solved',
         data: problemCounts,
-        backgroundColor: ratings.map(rating => problemRatingBackgroundColor(rating, 1.0)), // Set opacity to 1.0
-        borderColor: 'black', // Black border color
+        backgroundColor: backgroundColors,
+        borderColor: borderColors,
         borderWidth: 1,
+        pointRadius : 8,
+        pointHoverRadius : 12
       }]
     },
     options: {
@@ -204,39 +257,4 @@ function problemHistogram(problemsByRating) {
       }
     }
   });
-}
-
-// --------------------------------------------------------------------------
-function problemRatingBackgroundColor(rating){
-  const legendaryGrandmaster      = 'rgba(170,  0,  0,0.9)';
-  const internationalGrandmaster  = 'rgba(255,51 ,51 ,0.9)';
-  const grandmaster               = 'rgba(255,119,119,0.9)';
-  const internationalMaster       = 'rgba(255,187,85 ,0.9)';
-  const master                    = 'rgba(255,204,136,0.9)';
-  const candidateMaster           = 'rgba(255,136,255,0.9)';
-  const expert                    = 'rgba(170,170,255,0.9)';
-  const specialist                = 'rgba(119,221,187,0.9)';
-  const pupil                     = 'rgba(119,255,119,0.9)';
-  const newbie                    = 'rgba(204,204,204,0.9)';
-  if(rating>=3000){
-    return legendaryGrandmaster;
-  }else if(rating>=2600 && rating<=2999){
-    return internationalGrandmaster;
-  }else if(rating>=2400 && rating<=2599){
-    return grandmaster;
-  }else if(rating>=2300 && rating<=2399){
-    return internationalMaster;
-  }else if(rating>=2100 && rating<=2299){
-    return master;
-  }else if(rating>=1900 && rating<=2099){
-    return candidateMaster;
-  }else if(rating>=1600 && rating<=1899){
-    return expert;
-  }else if(rating>=1400 && rating<=1599){
-    return specialist;
-  }else if(rating>=1200 && rating<=1399){
-    return pupil;
-  }else{
-    return newbie;
-  }
 }
