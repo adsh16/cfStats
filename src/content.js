@@ -152,18 +152,18 @@ function problemHistogram(problemsByRating) {
     console.error("problemsByRating is undefined");
     return;
   }
-  console.log("problemsByRating:", problemsByRating);
+  // console.log("problemsByRating:", problemsByRating);
 
   const ratings = Object.keys(problemsByRating)
     .map(rating => parseInt(rating))
     .filter(rating => !isNaN(rating))
     .sort((a, b) => a - b);
 
-  console.log("ratings:", ratings);
+  // console.log("ratings:", ratings);
 
   const problemCounts = ratings.map(rating => problemsByRating[rating].length);
 
-  console.log("problemCounts:", problemCounts);
+  // // console.log("problemCounts:", problemCounts);
 
   // Get the canvas element
   const ctx = document.getElementById('problemGraph').getContext('2d');
