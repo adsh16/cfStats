@@ -9,3 +9,4 @@
 ---
 
 ![Solved Problems Grouped By Rating](githubImages/image-1.png)
+![Problem Solved Graph](https://github.com/adsh16/cfStats/assets/123091289/f70b3fb7-4a3d-4eb3-a99e-0ccd82d38f6e)
