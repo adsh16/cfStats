@@ -1,4 +1,8 @@
-# cfStats
+<div style="text-align: center;">
+  <img src="githubImages/cfStats.png" alt="drawing" width="200">
+  <h1>cfStats </h1>
+</div>
+
 ### Features
 - **Solved Problems by Rating** : Solved/Accepted Problems are clubbed with same difficulty ratings.
 - **Problem Histogram** : Graphical representation of solved problems according to difficulty ratings. Powered by [chart.js](https://www.chartjs.org/) 
@@ -9,4 +13,5 @@
 ---
 
 ![Solved Problems Grouped By Rating](githubImages/image-1.png)
-![Problem Solved Graph](https://github.com/adsh16/cfStats/assets/123091289/f70b3fb7-4a3d-4eb3-a99e-0ccd82d38f6e)
+![Problem Solved Graph](githubImages/image.png)
+![Unsolved probelsm](githubImages/image3.png)
