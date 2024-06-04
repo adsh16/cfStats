@@ -1,6 +1,6 @@
 <div style="text-align: center;">
   <img src="githubImages/cfStats.png" alt="drawing" width="200">
-  <h1>cfStats </h1>
+  <h1>cfStats</h1>
 </div>
 
 ### Features
