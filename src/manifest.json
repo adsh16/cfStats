@@ -4,8 +4,7 @@
   "version": "1.0",
   "description": "Track solved Codeforces problems by rating",
   "permissions": [
-    "activeTab",
-    "storage"
+    "activeTab"
   ],
   "host_permissions": [
     "https://codeforces.com/*"
