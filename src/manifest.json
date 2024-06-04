@@ -27,7 +27,7 @@
     {
       "matches": ["https://codeforces.com/profile/*"],
       "js": ["content.js","libs/chart.min.js"],
-      "css": ["styles.css","popup_style.css"]
+      "css" : ["templateStyle.css"]
     }
   ],
   "web_accessible_resources": [
@@ -35,8 +35,8 @@
       "resources": [
         "popup.html",
         "template.html",
-        "popup_style.css",
-        "styles.css",
+        "templateStyle.css",
+        "popupStyle.css",
         "content.js",
         "libs/chart.min.js",
         "images/arrow.png"

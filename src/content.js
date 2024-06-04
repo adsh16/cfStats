@@ -56,6 +56,9 @@ window.addEventListener('load', async () => {
       try {
         const response = await fetchSolvedProblems(handle);
         if (response.status === "OK") {
+          // Ignore the errors
+          console.log("Ignore the errors :}");
+          
           const solvedProblems = response.result.filter(submission => submission.verdict === "OK").map(submission => submission.problem);
           const problemsByRating = displaySolvedProblems(solvedProblems);
 
@@ -100,6 +103,7 @@ function displaySolvedProblems(solvedProblems) {
 
     const problemList = document.createElement('div');
     problemList.className = 'problem-list';
+    problemList.style = "padding-top: 0.5em;padding-bottom: 0.5em;" // adding padding
     problems.forEach(problem => {
       const problemDiv = document.createElement('div');
       problemDiv.innerHTML = `<a href="https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}" target="_blank">${problem.name}</a>`;
@@ -189,38 +193,32 @@ function problemHistogram(problemsByRating, chartType = 'line') {
     console.error("problemsByRating is undefined");
     return;
   }
-  console.log("problemsByRating:", problemsByRating);
 
   const ratings = Object.keys(problemsByRating)
     .map(rating => parseInt(rating))
     .filter(rating => !isNaN(rating))
     .sort((a, b) => a - b);
 
-  console.log("ratings:", ratings);
-
   const problemCounts = ratings.map(rating => problemsByRating[rating].length);
 
-  console.log("problemCounts:", problemCounts);
-
-  const ctx = document.getElementById('problemGraph').getContext('2d');
+  const canvas = document.getElementById('problemGraph');
+  const ctx = canvas.getContext('2d');
 
   if (currentChart) {
     currentChart.destroy();
   }
 
-  // // Adjust canvas size based on chart type
-  // if (chartType === 'pie') {
-  //   canvas.width = 300;
-  //   canvas.height = 300;
-  // } else {
-  //   canvas.width = 800;
-  //   canvas.height = 400;
-  // }
-
   const backgroundColors = ratings.map(rating => problemRatingBackgroundColor(rating).backgroundColor);
-  const borderColors = ratings.map(rating => problemRatingBackgroundColor(rating).borderColor);
+  const borderColors = ratings.map(rating => {
+    if (chartType === 'doughnut' || chartType === 'pie') {
+      return 'rgba(255, 255, 255, 1)'; // White border color for doughnut or pie chart
+    } else {
+      return problemRatingBackgroundColor(rating).borderColor;
+    }
+  });
 
-  currentChart = new Chart(ctx, {
+
+  const chartOptions = {
     type: chartType,
     data: {
       labels: ratings,
@@ -230,8 +228,8 @@ function problemHistogram(problemsByRating, chartType = 'line') {
         backgroundColor: backgroundColors,
         borderColor: borderColors,
         borderWidth: 1,
-        pointRadius : 8,
-        pointHoverRadius : 12
+        pointRadius: 8,
+        pointHoverRadius: 12
       }]
     },
     options: {
@@ -256,5 +254,7 @@ function problemHistogram(problemsByRating, chartType = 'line') {
         }
       }
     }
-  });
+  };
+
+  currentChart = new Chart(ctx, chartOptions);
 }
