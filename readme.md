@@ -1,16 +1,27 @@
 <p align="center">
-  <img src="githubImages/cfStats.png" alt="drawing" width="200">
+  <img src="githubImages/cfStats.png" alt="cfStats Logo" width="200">
 </p>
 
 <h1 align="center">cfStats</h1>
-<a href="https://chrome.google.com/webstore/detail/cfstats/bchliaklmfjameoifffgkacempfljakb">Webstore</a>
+
+<p align="center">
+  <a href="https://chrome.google.com/webstore/detail/cfstats/bchliaklmfjameoifffgkacempfljakb">Check it out on the Chrome Webstore</a>
+</p>
+
 ### Features
-- **Solved Problems by Rating** : Solved/Accepted Problems are clubbed with same difficulty ratings.
-- **Problem Histogram** : Graphical representation of solved problems according to difficulty ratings. Powered by [chart.js](https://www.chartjs.org/) 
-- **Unsolved Problems** : Problems that have been submited but have not been accepted.
-- **Contest History** : Graphical representaion of user's journery representing contest rank, rating gain and what was expected rank for user for that contest.
-- **Theme & Appeal** : Have tired to merge merge the extension results with codeforces.com theme so that it doesn't look distracting and out of place.😉
+
+- **Solved Problems by Rating**: Solved/Accepted problems are grouped by difficulty ratings.
+- **Problem Histogram**: A graphical representation of solved problems according to difficulty ratings, powered by [chart.js](https://www.chartjs.org/).
+- **Unsolved Problems**: Displays problems that have been submitted but not accepted.
+- **Contest History**: Graphically represents the user's journey in contests, showing contest rank, rating gain, and expected rank for each contest.
+- **Theme & Appeal**: The extension results are designed to blend with the Codeforces.com theme, ensuring it doesn’t look distracting or out of place. 😉
+
 ---
+
+### Screenshots
+
 ![Solved Problems Grouped By Rating](githubImages/image-1.png)
+
 ![Problem Solved Graph](githubImages/image.png)
-![Unsolved probelsm](githubImages/image3.png)
+
+![Unsolved Problems](githubImages/image3.png)
