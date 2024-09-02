@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">cfStats</h1>
-
+<a href="https://chrome.google.com/webstore/detail/cfstats/bchliaklmfjameoifffgkacempfljakb">Webstore</a>
 ### Features
 - **Solved Problems by Rating** : Solved/Accepted Problems are clubbed with same difficulty ratings.
 - **Problem Histogram** : Graphical representation of solved problems according to difficulty ratings. Powered by [chart.js](https://www.chartjs.org/) 
